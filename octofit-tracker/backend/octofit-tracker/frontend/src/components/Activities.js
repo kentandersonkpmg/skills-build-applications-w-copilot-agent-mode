@@ -19,15 +19,30 @@ const Activities = () => {
   }, [endpoint]);
 
   return (
-    <div>
-      <h2>Activities</h2>
-      <ul>
-        {activities.map((activity, idx) => (
-          <li key={activity.id || idx}>
-            {activity.user_email || activity.user?.email || 'Unknown'}: {activity.activity} ({activity.duration} min)
-          </li>
-        ))}
-      </ul>
+    <div className="mt-4">
+      <div className="card">
+        <div className="card-body">
+          <h2 className="card-title text-primary">Activities</h2>
+          <table className="table table-striped table-bordered">
+            <thead className="table-dark">
+              <tr>
+                <th>User</th>
+                <th>Activity</th>
+                <th>Duration (min)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activities.map((activity, idx) => (
+                <tr key={activity.id || idx}>
+                  <td>{activity.user_email || activity.user?.email || 'Unknown'}</td>
+                  <td>{activity.activity}</td>
+                  <td>{activity.duration}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
