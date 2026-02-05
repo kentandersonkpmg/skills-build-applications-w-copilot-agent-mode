@@ -9,12 +9,26 @@ const Workouts = () => {
 
   useEffect(() => {
     fetch(endpoint)
-      .then(res => res.json())
-      .then(data => {
-        const results = data.results || data;
-        setWorkouts(results);
-        console.log('Workouts endpoint:', endpoint);
-        console.log('Fetched workouts:', results);
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.text();
+      })
+      .then(text => {
+        if (!text) return [];
+        try {
+          const data = JSON.parse(text);
+          const results = data.results || data;
+          setWorkouts(results);
+          console.log('Workouts endpoint:', endpoint);
+          console.log('Fetched workouts:', results);
+        } catch (err) {
+          console.error('Failed to parse workouts JSON:', err);
+          setWorkouts([]);
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setWorkouts([]);
       });
   }, [endpoint]);
 

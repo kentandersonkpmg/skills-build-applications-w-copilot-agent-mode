@@ -9,12 +9,26 @@ const Users = () => {
 
   useEffect(() => {
     fetch(endpoint)
-      .then(res => res.json())
-      .then(data => {
-        const results = data.results || data;
-        setUsers(results);
-        console.log('Users endpoint:', endpoint);
-        console.log('Fetched users:', results);
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.text();
+      })
+      .then(text => {
+        if (!text) return [];
+        try {
+          const data = JSON.parse(text);
+          const results = data.results || data;
+          setUsers(results);
+          console.log('Users endpoint:', endpoint);
+          console.log('Fetched users:', results);
+        } catch (err) {
+          console.error('Failed to parse users JSON:', err);
+          setUsers([]);
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setUsers([]);
       });
   }, [endpoint]);
 

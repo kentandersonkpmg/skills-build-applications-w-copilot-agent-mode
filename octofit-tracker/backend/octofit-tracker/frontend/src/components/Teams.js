@@ -9,12 +9,26 @@ const Teams = () => {
 
   useEffect(() => {
     fetch(endpoint)
-      .then(res => res.json())
-      .then(data => {
-        const results = data.results || data;
-        setTeams(results);
-        console.log('Teams endpoint:', endpoint);
-        console.log('Fetched teams:', results);
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.text();
+      })
+      .then(text => {
+        if (!text) return [];
+        try {
+          const data = JSON.parse(text);
+          const results = data.results || data;
+          setTeams(results);
+          console.log('Teams endpoint:', endpoint);
+          console.log('Fetched teams:', results);
+        } catch (err) {
+          console.error('Failed to parse teams JSON:', err);
+          setTeams([]);
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setTeams([]);
       });
   }, [endpoint]);
 
