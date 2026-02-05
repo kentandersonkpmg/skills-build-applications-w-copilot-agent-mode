@@ -19,6 +19,11 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 
+import os
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet, basename='user')
 router.register(r'teams', views.TeamViewSet, basename='team')
@@ -31,3 +36,23 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('', views.api_root, name='api-root'),
 ]
+@api_view(['GET'])
+def api_root(request, format=None):
+    codespace_name = os.environ.get('CODESPACE_NAME')
+    # Write debug info to a file for guaranteed visibility
+    try:
+        with open('/workspaces/skills-build-applications-w-copilot-agent-mode/octofit-tracker/backend/codespace_debug.txt', 'a') as f:
+            f.write(f"CODESPACE_NAME in api_root: {codespace_name}\n")
+    except Exception as e:
+        pass
+    if codespace_name and codespace_name.strip():
+        base_url = f"https://{codespace_name}-8000.app.github.dev/api/"
+    else:
+        base_url = request.build_absolute_uri('/api/')
+    return Response({
+        'users': base_url + 'users/',
+        'teams': base_url + 'teams/',
+        'activities': base_url + 'activities/',
+        'workouts': base_url + 'workouts/',
+        'leaderboard': base_url + 'leaderboard/',
+    })
