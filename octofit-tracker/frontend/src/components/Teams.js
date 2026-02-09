@@ -1,0 +1,60 @@
+import React, { useEffect, useState } from 'react';
+
+const Teams = () => {
+  const [teams, setTeams] = useState([]);
+  const codespace = process.env.REACT_APP_CODESPACE_NAME;
+  const endpoint = codespace
+    ? `https://${codespace}-8000.app.github.dev/api/teams/`
+    : '/api/teams/';
+
+  useEffect(() => {
+    fetch(endpoint)
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.text();
+      })
+      .then(text => {
+        if (!text) return [];
+        try {
+          const data = JSON.parse(text);
+          const results = data.results || data;
+          setTeams(results);
+          console.log('Teams endpoint:', endpoint);
+          console.log('Fetched teams:', results);
+        } catch (err) {
+          console.error('Failed to parse teams JSON:', err);
+          setTeams([]);
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setTeams([]);
+      });
+  }, [endpoint]);
+
+  return (
+    <div className="mt-4">
+      <div className="card">
+        <div className="card-body">
+          <h2 className="card-title text-primary">Teams</h2>
+          <table className="table table-striped table-bordered">
+            <thead className="table-dark">
+              <tr>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teams.map((team, idx) => (
+                <tr key={team.id || idx}>
+                  <td>{team.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Teams;
